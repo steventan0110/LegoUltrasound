@@ -23,7 +23,7 @@ source.p0 = disc_mag*makeDisc(Nx, Ny, disc_x_pos, disc_y_pos, disc_radius);
 % define a Cartesian sensor mask of a centered circle with 50 sensor elements
 sensor_radius = 2.5e-3;                 % [m]
 num_sensor_points = 50;
-sensor.mask = makeCartCircle(sensor_radius, num_sensor_points);
+sensor.mask = makeCartCircle(sensor_ra  dius, num_sensor_points);
 imagesc(double(cart2grid(kgrid, sensor.mask)));
 % run the simulation
 sensor_data = kspaceFirstOrder2D(kgrid, medium, source, sensor);
