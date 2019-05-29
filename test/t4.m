@@ -10,7 +10,7 @@ Ny = 256;
 dx = 1;
 dy = 1;
 kgrid = makeGrid(Nx, dx, Ny, dy);
-% number of grid points in the x (row) direction
+% number of grid points in the x (row) direction  
 % number of grid points in the y (column) direction
 % grid point spacing in the x direction [m]
 % grid point spacing in the y direction [m]
