@@ -66,11 +66,12 @@ medium.sound_speed               = c0*ones(Nz, Nx);     % sound speed [m/s]
 medium.density                   = rho0*ones(Nz, Nx);   % density [kg/m3]
 medium.sound_speed(point_mask==1) = c0;                  % sound speed in wire [m/s]
 medium.density(point_mask==1)     = 2*rho0;              % density of wire [kg/m3]
-
+ 
 
 %% source definition
 % probe geometry and pulse definition
 geom=[pitch*((1:N)-(N+1)/2).' zeros(N,2)]; % probe's geometry
+
 t0=-5/f0:delta:5/f0;                       % pulse time vector [s]
 pulse=p0*gauspuls(t0,f0,bw);               % generated pulse [Pa]
 
@@ -97,7 +98,7 @@ end
 sensor.mask=source.p_mask;
 
 %% Run the simulation
-input_args = {'PlotSim', false, 'PMLSize', PML_Size, 'PMLInside', false, 'PlotFreq', 10};% 'RecordMovie', true};
+input_args = {'PlotSim',true , 'PMLSize', PML_Size, 'PMLInside', false, 'PlotFreq', 10};% 'RecordMovie', true};
 sensor_data = kspaceFirstOrder2D(kgrid, medium, source, sensor, input_args{:});
 p_sensor_data = permute(sensor_data,[2 1]);
 

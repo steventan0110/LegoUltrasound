@@ -143,14 +143,14 @@ for k = 1:N
             d1 = (i-k)*pitch; %the horizontal distance
             d2 = j/2*sampleSpacing;
             dif = (sqrt(d1^2+d2^2) - d2); 
-            delay = round(dif/sampleSpacing);
+            delay = round(dif/sampeSpacing);
             if delay + j < S
                 post_data(j, i) = post_data(j, i) + cd(j + delay, i);
             end
         end
     end
     Aline = sum(post_data, 2); %Aline's dimension would be [S, 1] 
-    Bscan = [Bscan Aline]; %concatenate Aline into Bscan image 
+    Bscan = [Bscan Aline] %concatenate two 
 end
 figure, plot(Aline);
 figure, imagesc(post_data);
