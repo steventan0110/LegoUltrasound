@@ -40,7 +40,7 @@ h11.Selected = true;
 M = createMask(h1) | createMask(h2)|createMask(h3)|createMask(h4)|createMask(h5)...
     |createMask(h6)|createMask(h7)|createMask(h8)|createMask(h9)|createMask(h10)...
     |createMask(h11);
-imshow(M)
-save('mask', M)
 
-Bmask = image;
+save('mask1.mat', 'M')
+
+Bmask = M;
