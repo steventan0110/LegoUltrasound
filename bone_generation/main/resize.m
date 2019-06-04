@@ -32,7 +32,14 @@ end
 image = flipud(image);
 
 %adjust index into correct dimensions
-ind = Ly - ind;
+
 new_ind = zeros(1,Lx);
-new_ind(start_x, end_x) = ind; %might have dimension error
+for i = start_x: end_x
+    index = round(i- start_x) + 1;
+    if index > c %prevent oversize due to round
+        index = c;
+    end  
+    new_ind(i) = ind(index);
+end
+
 
