@@ -19,8 +19,6 @@ for i = 1:c
     end
 end
 
-plot(1:c, r-ind);
-
 img = M;
 for i = 1:r
     for j = 1:c
@@ -31,4 +29,5 @@ for i = 1:r
         end
     end 
 end
-imshow(img)
+
+
