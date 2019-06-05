@@ -12,6 +12,6 @@ load('mask.mat', 'M')
 
 
 %randomize the boundaries
-[images, inds] = rnd_bone(image, num);
+[images, inds] = rnd_bone(image, num, ind);
 %dimension of images/inds would add one more dimension of size num
 

@@ -16,9 +16,11 @@ start_x = round(mid - c/2);
 end_x = round(mid + c/2);
 
 %fill in the new image:
-ind = get_ind(img);
+ind = get_ind(img); 
+
+
 ind = r - ind;
-for i = 1:r
+for i = 1:r  
     for j = start_x:end_x
         index = round(j- start_x) + 1;
         if index > c %prevent oversize due to round
