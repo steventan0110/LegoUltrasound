@@ -53,26 +53,11 @@ assert(f0<c0/2/h,'The excitation frequency exceeds Nyquist limit in space.')
 
 
 %% domain definition
-% This part defines the medium, which needs to be rewritten according the
-% data from CT
-% wires
-point_z = 25e-3;             % z-position of the scatterers [m]
-point_x = 0;                 % x-position of the scatterers [m]
+% This part defines the medium, which will be replaced by medium retrived
+% from get_medium function. For now use a point
 
-% snapping points to grid, this code is valid for more than one points
-point_sample_z = (round((point_z-z(1))/h)+1); 
-point_sample_z = point_sample_z(point_sample_z < Nz);
-point_sample_x = (round((point_x-x(1))/h+1)); 
-point_sample_x = point_sample_x(point_sample_x < Nx);
-[wzwz, wxwx] = meshgrid(point_sample_z, point_sample_x);
 point_mask = zeros(Nz,Nx);
-%disc = makeDisc(Nx, Ny, cx, cy, radius)
-%the radius for this disc is very small -- lambda/h/8 = 0.75mm so it could
-%be treated as a point
-for n = 1:length(wzwz(:))
-    point_mask = point_mask + makeDisc(Nz,Nx,wzwz(n),wxwx(n),round(lambda/8/h));
-end
-
+point_mask(round(Nz/2),1) = 1; % only a point is the medium
 % medium matrix
 medium.sound_speed               = c0*ones(Nz, Nx);     % sound speed [m/s]
 medium.density                   = rho0*ones(Nz, Nx);   % density [kg/m3]
@@ -80,14 +65,24 @@ medium.sound_speed(point_mask==1) = c0;                  % sound speed in wire [
 medium.density(point_mask==1)     = 2*rho0;              % density of wire [kg/m3]
 
 
-%% source definition
+%% source definition and Beamforming for Bmode image process:
+
+pitch_n=round(pitch/h);            % quantified pitch
+[~,n0]=min(abs(x+N*pitch/2));   % initial transducer position\
+for i = 1:N  %iterate through the elements
+    %redefine the origin and focus:
+    nx=n0+1+pitch_n*(i-1)+(0:(pitch_n-1));
+    origin = [nx 0 0];     % origin [m,m,m]
+    focus = [nx 0  15e-3]; % transmit focus [m,m,m], focus depth is never changed
+end 
+
 % probe geometry and pulse definition
 geom=[pitch*((1:N)-(N+1)/2).' zeros(N,2)]; % probe's geometry
-t0=-5/f0:delta:5/f0;                       % pulse time vector [s]
+t0=-5/f0:delta:5/f0;                        % pulse time vector [s]
 pulse=p0*gauspuls(t0,f0,bw);               % generated pulse [Pa]
 
 % transmit focus & apodization
-tx_apodization=hamming(N);                            % transmit apodization
+tx_apodization=hamming(N);                             % transmit apodization
 tx_delay=(sqrt(sum((origin-focus).^2,2))-sqrt(sum((geom-ones(N,1)*focus).^2,2)))/c0;
 t00=(min(tx_delay)-5/f0):delta:(max(tx_delay)+5/f0);  % pulse time vector [s]
 t=t+min(t00);                                         % redefining time vector to compensate for pulse length;

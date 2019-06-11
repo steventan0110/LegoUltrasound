@@ -28,7 +28,7 @@ source.p0 = line_mag*makeLine(Nx, Ny, [line_start_x, line_y], [line_end_x, line_
 
 %define the binary mask for sensor:
 sensor.mask = zeros(Nx, Ny);
-sensor.mask(1, :) = 1;
+sensor.mask(1, :) = 1;  
 
 imagesc(double(sensor.mask));
 % run the simulation
