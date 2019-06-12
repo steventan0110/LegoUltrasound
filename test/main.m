@@ -67,86 +67,88 @@ medium.density(point_mask==1)     = 2*rho0;              % density of wire [kg/m
 
 %% source definition and Beamforming for Bmode image process:
 
-pitch_n=round(pitch/h);            % quantified pitch
-[~,n0]=min(abs(x+N*pitch/2));   % initial transducer position\
-for i = 1:N  %iterate through the elements
-    %redefine the origin and focus:
-    nx=n0+1+pitch_n*(i-1)+(0:(pitch_n-1));
-    origin = [nx 0 0];     % origin [m,m,m]
-    focus = [nx 0  15e-3]; % transmit focus [m,m,m], focus depth is never changed
-end 
+pitch_n=round(pitch/h);         % quantified pitch
+[~,n0]=min(abs(x+N*pitch/2));   % initial transducer position
 
 % probe geometry and pulse definition
 geom=[pitch*((1:N)-(N+1)/2).' zeros(N,2)]; % probe's geometry
 t0=-5/f0:delta:5/f0;                        % pulse time vector [s]
 pulse=p0*gauspuls(t0,f0,bw);               % generated pulse [Pa]
 
-% transmit focus & apodization
-tx_apodization=hamming(N);                             % transmit apodization
-tx_delay=(sqrt(sum((origin-focus).^2,2))-sqrt(sum((geom-ones(N,1)*focus).^2,2)))/c0;
-t00=(min(tx_delay)-5/f0):delta:(max(tx_delay)+5/f0);  % pulse time vector [s]
-t=t+min(t00);                                         % redefining time vector to compensate for pulse length;
-
-% snapping transducer to grid and assigning temporal signals
-pitch_n=round(pitch/h);            % quantified pitch
-[~,n0]=min(abs(x+N*pitch/2));   % initial transducer position\
-source.p=[]; 
-source.p_mask=zeros(Nz,Nx); 
-for n=1:N
-    nx=n0+1+pitch_n*(n-1)+(0:(pitch_n-1));
-    [~,nz]=min(abs(z-geom(n,3)));
-    source.p_mask(nz,nx)=1;
-    source.p=[source.p; repmat(tx_apodization(n)*interp1(t0,pulse,t00-tx_delay(n),'linear',0),pitch_n,1)];
-end
-
-
-%% sensor definition
-sensor.mask=source.p_mask;
-
-%% Run the simulation
-input_args = {'PlotSim', false, 'PMLSize', PML_Size, 'PMLInside', false, 'PlotFreq', 10};% 'RecordMovie', true};
-sensor_data = kspaceFirstOrder2D(kgrid, medium, source, sensor, input_args{:});
-p_sensor_data = permute(sensor_data,[2 1]);
-
-%% Convert sensor data to RF data
-% converting sensir data to channel data
-rf_channel_data = zeros(size(p_sensor_data,1),N); %N channels since N is # of source 
-for n = 1:N
-    rf_channel_data(:,n) = rf_channel_data(:,n)+sum(p_sensor_data(:,pitch_n*(n-1)+(1:pitch_n)),2);
-end
-
-cd = rf_channel_data(abs(round((min(tx_delay)-5/f0)/delta)) + 2:end, :);
-% showing rf-channel data
-figure
-imagesc(1:N,t,cd); colormap gray;
-title('RF channel data')
-
-%% beamforming
-% beamformed_data = DAS_single_2(cd,N*3,pitch*1e3,c0,1);
-[S, N] = size(cd);
-
-post_data = zeros(S, N);
-sampleSpacing = c0/Fs;
-%need to add one more for loop to do the delay using each lateral point as
-%reference
 Bscan = []; %Bscan compose of N number of Aline
-for k = 1:N
-    %use each element as reference to calculate a Aline 
+for i = 1:N  %iterate through the elements for transmission and beamform
+    %% source definition
+    %redefine the origin and focus:
+    nx= x(n0) + (i-1)*pitch;
+    origin = [nx 0 0];     % origin [m,m,m]
+    focus = [nx 0 15e-3]; % transmit focus [m,m,m], focus depth is never changed
+    
+    % transmit focus & apodization
+    tx_apodization=hamming(N);                             % transmit apodization
+    d_vert =  sqrt(sum((origin-focus).^2,2)); %the vertical distance, which is constant
+    size(nx)
+    d_slope = sqrt(sum((geom-ones(N,1)*focus).^2,2)); %the longest side of the triangle for each transmission element
+    tx_delay=(d_vert-d_slope)/c0;
+    t00=(min(tx_delay)-5/f0):delta:(max(tx_delay)+5/f0);  % pulse time vector [s]
+    t=t+min(t00);                                         % redefining time vector to compensate for pulse length;
+    
+    % snapping transducer to grid and assigning temporal signals
+    source.p=[]; 
+    source.p_mask=zeros(Nz,Nx); 
+    
+    for n=1:N %define the source mask for simulation
+        nx_s=n0+1+pitch_n*(n-1)+(0:(pitch_n-1));
+        [~,nz]=min(abs(z-geom(n,3)));
+        source.p_mask(nz,nx_s)=1;
+        source.p=[source.p; repmat(tx_apodization(n)*interp1(t0,pulse,t00-tx_delay(n),'linear',0),pitch_n,1)];
+    end
+    
+    %% sensor definition
+    sensor.mask=source.p_mask;
+    
+    %% Run the simulation
+    input_args = {'PlotSim', false, 'PMLSize', PML_Size, 'PMLInside', false, 'PlotFreq', 10};% 'RecordMovie', true};
+    sensor_data = kspaceFirstOrder2D(kgrid, medium, source, sensor, input_args{:});
+    p_sensor_data = permute(sensor_data,[2 1]);
+    
+    %% Convert sensor data to RF data
+    % converting sensir data to channel data
+    rf_channel_data = zeros(size(p_sensor_data,1),N); %N channels since N is # of source 
+    for n = 1:N
+        rf_channel_data(:,n) = rf_channel_data(:,n)+sum(p_sensor_data(:,pitch_n*(n-1)+(1:pitch_n)),2);
+    end
+
+    cd = rf_channel_data(abs(round((min(tx_delay)-5/f0)/delta)) + 2:end, :);
+    % showing rf-channel data
+    figure
+    imagesc(1:N,t,cd); colormap gray;
+    title('RF channel data')
+    
+    %% beamforming
+    [S, N_b] = size(cd);
+
+    post_data = zeros(S, N_b);
+    sampleSpacing = c0/Fs;
+    
+
     for j = 1:S
-        for i = 1:N
+        for k = 1:N_b
             %distance from reference point to Nth element:
             d1 = (i-k)*pitch; %the horizontal distance
-            d2 = j/2*sampleSpacing;
-            dif = (sqrt(d1^2+d2^2) - d2); 
+            d2 = j/2*sampleSpacing; %the vertical distance, divide by 2 cause it's a round trip
+            dif = (sqrt(d1^2+d2^2) - d2);
             delay = round(dif/sampleSpacing);
             if delay + j < S
-                post_data(j, i) = post_data(j, i) + cd(j + delay, i);
+                post_data(j, k) = post_data(j, k) + cd(j + delay, k);
             end
         end
     end
-    Aline = sum(post_data, 2); %Aline's dimension would be [S, 1] 
-    Bscan = [Bscan Aline]; %concatenate Aline into Bscan image 
-end
+    Aline = sum(post_data, 2); %Aline's dimension would be [S, 1]
+    Bscan = [Bscan Aline]; %concatenate Aline into Bscan image
+
+end 
+
+
 figure, plot(Aline);
 figure, imagesc(post_data);
 

@@ -78,6 +78,7 @@ pulse=p0*gauspuls(t0,f0,bw);               % generated pulse [Pa]
 % transmit focus & apodization
 tx_apodization=hamming(N);                            % transmit apodization
 tx_delay=(sqrt(sum((origin-focus).^2,2))-sqrt(sum((geom-ones(N,1)*focus).^2,2)))/c0;
+
 t00=(min(tx_delay)-5/f0):delta:(max(tx_delay)+5/f0);  % pulse time vector [s]
 t=t+min(t00);                                         % redefining time vector to compensate for pulse length;
 
