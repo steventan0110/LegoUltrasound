@@ -59,7 +59,7 @@ assert(f0<c0/2/h,'The excitation frequency exceeds Nyquist limit in space.')
 point_mask = zeros(Nz,Nx);
 point_mask(round(Nz/3),round(Nx/3)) = 1; % only a point is the medium
 point_mask(round(Nz/3),round(2*Nx/3)) = 1;
-point_mask(round(2*Nz/3),round(2*Nx/3)) = 1;
+point_mask(round(2*Nz/3),round(2*Nx/3)) = 1; 
 point_mask(round(2*Nz/3),round(Nx/3)) = 1;
 % medium matrix
 medium.sound_speed               = c0*ones(Nz, Nx);     % sound speed [m/s]
@@ -111,7 +111,7 @@ for i =1: 64%= 1:N  %iterate through the elements for transmission and beamform
     sensor.mask=source.p_mask;
     
     %% Run the simulation
-    input_args = {'PlotSim', true, 'PMLSize', PML_Size, 'PMLInside', false, 'PlotFreq', 10};% 'RecordMovie', true};
+    input_args = {'PlotSim', false, 'PMLSize', PML_Size, 'PMLInside', false, 'PlotFreq', 10};% 'RecordMovie', true};
     sensor_data = kspaceFirstOrder2D(kgrid, medium, source, sensor, input_args{:});
     p_sensor_data = permute(sensor_data,[2 1]);
     
@@ -130,7 +130,6 @@ for i =1: 64%= 1:N  %iterate through the elements for transmission and beamform
     
     %% beamforming
     [S, N_b] = size(cd);
-
     post_data = zeros(S, N_b);
     sampleSpacing = c0/Fs;
     
@@ -148,8 +147,11 @@ for i =1: 64%= 1:N  %iterate through the elements for transmission and beamform
         end
     end
     Aline = sum(post_data, 2); %Aline's dimension would be [S, 1]
-    Bscan = [Bscan Aline]; %concatenate Aline into Bscan image
-
+    if size(Aline,1) < 1400
+        Aline(1400,1) = 0;
+    end
+    Bscan = [Bscan Aline(1:1400,:)]; %concatenate Aline into Bscan image
+    
 
 end 
 
