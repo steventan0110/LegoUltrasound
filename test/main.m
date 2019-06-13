@@ -18,9 +18,9 @@ Lz = 50e-3;           % depth of domain (m)
 f0 = 2.0e6;           % transducer central frequency [Hz]
 bw = 0.8;             % pulse bandwidth
 p0 = 0.5e6;           % pulse amplitude [Pa]
-N = 128;              % number of elements
+N = 128/2;              % number of elements
 lambda = c0/f0;       % wavelengsth [m]
-pitch = lambda/2;     % element pitch [m]
+pitch = lambda/2*2;     % element pitch [m]
 origin = [0 0 0];     % origin [m,m,m]
 focus = [0 0  15e-3]; % transmit focus [m,m,m]
 
@@ -40,8 +40,8 @@ PML_Size = round(4*lambda/h);  % size of the PML layers in grid points
 
 % temporal grid
 diagonal = (Lz^2 + Lx^2)^0.5;   %the length of the diagonal in the grid
-t_end = 2*(Lz/c0+diagonal/c0);  % maximum value of time vector [s]
-CFL = 0.3;                     % CFL number, CFL = c0*delta/h
+t_end = 2*(diagonal/c0);  % maximum value of time vector [s]
+CFL = 0.6;                     % CFL number, CFL = c0*delta/h
 [kgrid.t_array, delta] = makeTime(kgrid, c0, CFL, t_end); % k-Wave structure
 t = kgrid.t_array;             % t-vector (s)
 Fs = 1/delta;                  % sampling frequency (Hz)
@@ -57,7 +57,10 @@ assert(f0<c0/2/h,'The excitation frequency exceeds Nyquist limit in space.')
 % from get_medium function. For now use a point
 
 point_mask = zeros(Nz,Nx);
-point_mask(round(Nz/2),1) = 1; % only a point is the medium
+point_mask(round(Nz/3),round(Nx/3)) = 1; % only a point is the medium
+point_mask(round(Nz/3),round(2*Nx/3)) = 1;
+point_mask(round(2*Nz/3),round(2*Nx/3)) = 1;
+point_mask(round(2*Nz/3),round(Nx/3)) = 1;
 % medium matrix
 medium.sound_speed               = c0*ones(Nz, Nx);     % sound speed [m/s]
 medium.density                   = rho0*ones(Nz, Nx);   % density [kg/m3]
@@ -76,7 +79,7 @@ t0=-5/f0:delta:5/f0;                        % pulse time vector [s]
 pulse=p0*gauspuls(t0,f0,bw);               % generated pulse [Pa]
 
 Bscan = []; %Bscan compose of N number of Aline
-for i = 1:N  %iterate through the elements for transmission and beamform
+for i =1: 64%= 1:N  %iterate through the elements for transmission and beamform
     %% source definition
     %redefine the origin and focus:
     nx= x(n0) + (i-1)*pitch;
@@ -86,10 +89,11 @@ for i = 1:N  %iterate through the elements for transmission and beamform
     % transmit focus & apodization
     tx_apodization=hamming(N);                             % transmit apodization
     d_vert =  sqrt(sum((origin-focus).^2,2)); %the vertical distance, which is constant
-    size(nx)
+
     d_slope = sqrt(sum((geom-ones(N,1)*focus).^2,2)); %the longest side of the triangle for each transmission element
     tx_delay=(d_vert-d_slope)/c0;
     t00=(min(tx_delay)-5/f0):delta:(max(tx_delay)+5/f0);  % pulse time vector [s]
+    t = kgrid.t_array; 
     t=t+min(t00);                                         % redefining time vector to compensate for pulse length;
     
     % snapping transducer to grid and assigning temporal signals
@@ -107,7 +111,7 @@ for i = 1:N  %iterate through the elements for transmission and beamform
     sensor.mask=source.p_mask;
     
     %% Run the simulation
-    input_args = {'PlotSim', false, 'PMLSize', PML_Size, 'PMLInside', false, 'PlotFreq', 10};% 'RecordMovie', true};
+    input_args = {'PlotSim', true, 'PMLSize', PML_Size, 'PMLInside', false, 'PlotFreq', 10};% 'RecordMovie', true};
     sensor_data = kspaceFirstOrder2D(kgrid, medium, source, sensor, input_args{:});
     p_sensor_data = permute(sensor_data,[2 1]);
     
@@ -145,6 +149,7 @@ for i = 1:N  %iterate through the elements for transmission and beamform
     end
     Aline = sum(post_data, 2); %Aline's dimension would be [S, 1]
     Bscan = [Bscan Aline]; %concatenate Aline into Bscan image
+
 
 end 
 
