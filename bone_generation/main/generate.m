@@ -9,7 +9,7 @@ load('mask.mat', 'M')
 % hold on
 % plot(ind)
 
-
+%try to shift the image data:
 
 %randomize the boundaries
 [images, inds] = rnd_bone(image, num, ind);
