@@ -5,16 +5,16 @@
 function [image, inds] = generate(Lx, Ly) %generate num of bones
 
 load('mask.mat', 'M')
-%resize original image
-image = resize(M, Lx, Ly);
+[r,c] = size(M);
+%resize original image (randomize part incorporated in it)
+[image] = resize(M, Lx, Ly);
+imshow(M);
 %shift the image data by an random amount:
-amount = randi([0,Ly],1);
+amount = randi([0,round((Ly-c)/2)],1); 
 image = circshift(image, [0,amount]);
 %50% chance flip the image horizontally 
 if (rand > 0.5)
     image = fliplr(image);
 end
-%randomize the boundaries
-[image, inds] = rnd_bone(image);
-%dimension of images/inds would add one more dimension of size num
 
+%retrive the index for label

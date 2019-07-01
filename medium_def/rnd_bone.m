@@ -1,6 +1,6 @@
 %function that implement data augmentation technique to randomize the
 %boundary points of the bone mask to generate more medium for kwave
-function [mask,ind] = rnd_bone(image) %the initial index for first image
+function inds = rnd_bone(ind) %the initial index for first image
 
 %use data augmentation:
 %randomize the boundary points
@@ -14,5 +14,4 @@ rh = normrnd(10,30);
 ind(ph) = ind(ph) + rh;
 %truncate the outlier points:
 ind(ind <0) = 0;
-
-plot(ind)
+inds = ind;
