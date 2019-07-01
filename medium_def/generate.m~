@@ -1,0 +1,15 @@
+%the main function to generate n bones given the data I cropped
+%the only function called by the kwave simulation file when defining the
+%meidum
+
+function [images, inds] = generate(Lx, Ly) %generate num of bones
+
+load('mask.mat', 'M')
+%resize original image
+image = resize(M, Lx, Ly);
+%50% chance dashift the image data:
+image = shift(image)
+%randomize the boundaries
+[images, inds] = rnd_bone(image,ind);
+%dimension of images/inds would add one more dimension of size num
+
