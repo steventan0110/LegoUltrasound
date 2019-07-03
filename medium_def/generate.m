@@ -2,10 +2,10 @@
 %the only function called by the kwave simulation file when defining the
 %meidum
 
-function [image, inds] = generate(Lx, Ly) %generate num of bones
+function [image, ind] = generate(Lx, Ly) %generate num of bones
 
 load('mask.mat', 'M')
-[r,c] = size(M);
+[~,c] = size(M);
 %resize original image (randomize part incorporated in it)
 [image] = resize(M, Lx, Ly);
 imshow(M);
@@ -18,3 +18,10 @@ if (rand > 0.5)
 end
 
 %retrive the index for label
+[~,ind] = max(flipud(image), [],1);
+%test purpose:
+% figure(1)
+% imshow(image)
+% figure(2)
+% plot(ind)
+
