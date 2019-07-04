@@ -1,6 +1,6 @@
 
 % clear all;
-addpath k-Wave
+addpath ~/work/yixuan/k-Wave
 rng('shuffle');
 
 %% input data
