@@ -8,7 +8,7 @@ load('mask.mat', 'M')
 [~,c] = size(M);
 %resize original image (randomize part incorporated in it)
 [image] = resize(M, Lx, Ly);
-imshow(M);
+
 %shift the image data by an random amount:
 amount = randi([0,round((Ly-c)/2)],1); 
 image = circshift(image, [0,amount]);
