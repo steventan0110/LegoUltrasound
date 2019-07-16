@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=matlab
-#SBATCH --time=1:00:00
+#SBATCH --time=24:00:00
 #SBATCH --partition=shared
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=2
@@ -15,5 +15,5 @@
  
 ml matlab
 ml # confirm modules used
-matlab -nodisplay -nojvm -nosplash -nodesktop -r "main_steven;"
+matlab -nodisplay -nojvm -nosplash -nodesktop -r "main_steven1;"
 echo "matlab exit code: $?"
