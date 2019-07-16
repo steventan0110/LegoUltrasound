@@ -6,7 +6,8 @@
 close all
 clear;
 clc;
-addpath k-Wave
+addpath k-Wave %the k-Wave is stored directly in LegoUltrasound folder, otherwise needs change
+addpath medium_def %for the medium definition
 %% input data
 
 % domain
@@ -37,7 +38,7 @@ z = (0:(Nz-1))*h;              % z-vector [m]
 [xx,zz] = meshgrid(x,z);       % x and z matrixes [m]
 kgrid = makeGrid(Nz,h,Nx,h);   % k-Wave structure
 
-PML_Size = round(4*lambda/h);  % size of the PML layers in grid points
+PML_Size = round(4*lambda/h)+1;  % size of the PML layers in grid points
 
 % temporal grid
 diagonal = (Lz^2 + Lx^2)^0.5;   %the length of the diagonal in the grid
