@@ -53,33 +53,33 @@ Fs = 1/delta;                  % sampling frequency (Hz)
 assert(f0<Fs/2,'The excitation frequency exceeds Nyquist limit in time.')
 assert(f0<c0/2/h,'The excitation frequency exceeds Nyquist limit in space.')
 
-
-%% domain definition
-% This part defines the medium, which will be replaced by medium retrived
-% from get_medium function. For now use a point
-[image, ind] = generate(Nz, Nx);
-point_mask = zeros(Nz,Nx);
-point_mask(image ~= 0) = 1;
-%imshow(point_mask);
-% medium matrix
-medium.sound_speed               = c0*ones(Nz, Nx);     % sound speed [m/s]
-medium.density                   = rho0*ones(Nz, Nx);   % density [kg/m3]
-medium.sound_speed(point_mask==1) = c0;                  % sound speed in wire [m/s]
-medium.density(point_mask==1)     = 2*rho0;              % density of wire [kg/m3]
-
-
-%% source definition and Beamforming for Bmode image process:
-
-pitch_n=round(pitch/h);         % quantified pitch
-[~,n0]=min(abs(x+N*pitch/2));   % initial transducer position
-
-% probe geometry and pulse definition
-geom=[pitch*((1:N)-(N+1)/2).' zeros(N,2)]; % probe's geometry
-t0=-5/f0:delta:5/f0;                        % pulse time vector [s]
-pulse=p0*gauspuls(t0,f0,bw);               % generated pulse [Pa]
-
 numPics = 20; % define the number of images I want
 for pic = 1: numPics
+    %% domain definition
+    % This part defines the medium, which will be replaced by medium retrived
+    % from get_medium function. For now use a point
+    [image, ind] = generate(Nz, Nx);
+    point_mask = zeros(Nz,Nx);
+    point_mask(image ~= 0) = 1;
+    %imshow(point_mask);
+    % medium matrix
+    medium.sound_speed               = c0*ones(Nz, Nx);     % sound speed [m/s]
+    medium.density                   = rho0*ones(Nz, Nx);   % density [kg/m3]
+    medium.sound_speed(point_mask==1) = c0;                  % sound speed in wire [m/s]
+    medium.density(point_mask==1)     = 2*rho0;              % density of wire [kg/m3]
+    
+    
+    %% source definition and Beamforming for Bmode image process:
+    
+    pitch_n=round(pitch/h);         % quantified pitch
+    [~,n0]=min(abs(x+N*pitch/2));   % initial transducer position
+    
+    % probe geometry and pulse definition
+    geom=[pitch*((1:N)-(N+1)/2).' zeros(N,2)]; % probe's geometry
+    t0=-5/f0:delta:5/f0;                        % pulse time vector [s]
+    pulse=p0*gauspuls(t0,f0,bw);               % generated pulse [Pa]
+    
+    
     Bscan = zeros(1400, N); %Bscan compose of N number of Aline
     
     for i = 1:N  %iterate through the elements for transmission and beamform
@@ -160,12 +160,13 @@ for pic = 1: numPics
         
     end
     
-%     output the image for testing
-%     figure
-%     imagesc(logCompression(abs(hilbert(Bscan)), 0.01)), colormap(gray);
-pathname = strcat(pwd, '/data/', num2str(pic));
-mkdir(pathname);
-save(strcat(pathname, 'Bscan.mat'),'Bscan');
+    %     output the image for testing
+    %     figure
+    %     imagesc(logCompression(abs(hilbert(Bscan)), 0.01)), colormap(gray);
+    pathname = strcat(pwd, '/data/', num2str(pic));
+    mkdir(pathname);
+    save(strcat(pathname, 'Bscan.mat'),'Bscan'); %save the matrix for image processing
+    save(strcat(pathname, 'ind.mat'), 'ind'); %save the index for label
 end
 
 % figure, plot(Aline);
