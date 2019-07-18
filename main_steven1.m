@@ -78,7 +78,7 @@ geom=[pitch*((1:N)-(N+1)/2).' zeros(N,2)]; % probe's geometry
 t0=-5/f0:delta:5/f0;                        % pulse time vector [s]
 pulse=p0*gauspuls(t0,f0,bw);               % generated pulse [Pa]
 
-numPics = 10; % define the number of images I want
+numPics = 20; % define the number of images I want
 for pic = 1: numPics
     Bscan = zeros(1400, N); %Bscan compose of N number of Aline
     
