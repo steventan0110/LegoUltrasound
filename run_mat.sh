@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=matlab
-#SBATCH --time=24:00:00
+#SBATCH --time=72:00:00
 #SBATCH --partition=shared
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=2

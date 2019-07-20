@@ -165,8 +165,8 @@ for pic = 1: numPics
     %     imagesc(logCompression(abs(hilbert(Bscan)), 0.01)), colormap(gray);
     pathname = strcat(pwd, '/data/', num2str(pic));
     mkdir(pathname);
-    save(strcat(pathname, 'Bscan.mat'),'Bscan'); %save the matrix for image processing
-    save(strcat(pathname, 'ind.mat'), 'ind'); %save the index for label
+    save(strcat(pathname, '/Bscan.mat'),'Bscan'); %save the matrix for image processing
+    save(strcat(pathname, '/ind.mat'), 'ind'); %save the index for label
 end
 
 % figure, plot(Aline);
