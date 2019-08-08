@@ -54,7 +54,7 @@ assert(f0<Fs/2,'The excitation frequency exceeds Nyquist limit in time.')
 assert(f0<c0/2/h,'The excitation frequency exceeds Nyquist limit in space.')
 
 numPics = 2000; % define the number of images I want
-for pic = 49: numPics
+for pic = 81: numPics
     %% domain definition
     % This part defines the medium, which will be replaced by medium retrived
     % from get_medium function. For now use a point
